@@ -15,8 +15,8 @@ sudo make install
 Start the `pigpiod` daemon with `sudo pigpiod`. Then, you can use the library like this:
 ```python
 import adxl345
-adxl = adxl345.ADXL345(sample_rate=100, time=10)
-adxl.read()
+adxl = adxl345.ADXL345(sample_rate=100)
+adxl.read_one()
 ```
 
 
