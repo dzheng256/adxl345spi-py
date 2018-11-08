@@ -28,23 +28,27 @@ class ADXL345:
         self.READ_DATA = self.data[:]
         self.READ_DATA[0] = self.DATAX0
         self.READ_DATA[0] |= self.MULTI_BIT
-        self.WRITE_DATA = self.READ_DATA[:]
         self.READ_DATA[0] |= self.READ_BIT
-        self.v_save = ""
 
         self.h = self.pi.spi_open(0, self.spi_speed, 3)
-        self.cold_start()
 
         self.data[0] = self.BW_RATE
         self.data[1] = 0x0F
-        self.write_bytes(self.pi, self.h, self.data[:2])
+        self.data |= self.MULTI_BIT
+        self.pi.spi_xfer(self.h, self.data[:2])
         self.data[0] = self.DATA_FORMAT
         self.data[1] = self.DATA_FORMAT_B
-        self.write_bytes(self.pi, self.h, self.data[:2])
+        self.data |= self.MULTI_BIT
+        self.pi.spi_xfer(self.h, self.data[:2])
         self.data[0] = self.POWER_CTL
         self.data[1] = 0x08
-        self.write_bytes(self.pi, self.h, self.data[:2])
+        self.data |= self.MULTI_BIT
+        self.pi.spi_xfer(self.h, self.data[:2])
+
+        self.cold_start()
+
         self.delay = 1.0 / self.v_freq
+
         self.saved_data = defaultdict(deque)
 
     def cold_start(self):
@@ -54,24 +58,12 @@ class ADXL345:
             time.sleep(self.cold_start_delay)
 
     def read(self, samples):
-        success = 1
         start_time = time.time()
         for _ in range(samples):
-            count, data = self.pi.spi_xfer(self.h, self.READ_DATA)
-            if count == 7:
-                x = ct.c_int16(((data[2] << 8)) | data[1]).value
-                y = ct.c_int16(((data[4] << 8)) | data[3]).value
-                z = ct.c_int16(((data[6] << 8)) | data[5]).value
-                t = time.time() - start_time
-                for k, v in zip(('t', 'x', 'y', 'z'), (t, x, y, z)):
-                    self.saved_data[k].append(v)
-                yield t, x, y, z
-            else:
-                success = 0
+            yield self.read_one()
             time.sleep(self.delay)
         duration = time.time() - start_time
-        if not success:
-            print("Error occurred!")
+        return start_time, duration
 
     def read_one(self):
         count, data = self.pi.spi_xfer(self.h, self.READ_DATA)
@@ -79,7 +71,7 @@ class ADXL345:
             x = ct.c_int16(((data[2] << 8)) | data[1]).value
             y = ct.c_int16(((data[4] << 8)) | data[3]).value
             z = ct.c_int16(((data[6] << 8)) | data[5]).value
-            t = time.time() - start_time
+            t = time.time()
             return t, x, y, z
         else:
             raise ValueError('Error occurred, did not read 7 bytes!')
