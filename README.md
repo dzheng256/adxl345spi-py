@@ -11,12 +11,15 @@ cd PIGPIO
 make -j4
 sudo make install
 ```
+
+Then clone this library and install with `python setup.py install`.
 ## Usage
 Start the `pigpiod` daemon with `sudo pigpiod`. Then, you can use the library like this:
 ```python
-import adxl345
+from adxl345 import adxl345
 adxl = adxl345.ADXL345(sample_rate=100)
 adxl.read_one()
+adxl.close()
 ```
 
 
