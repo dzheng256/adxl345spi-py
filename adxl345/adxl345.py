@@ -57,7 +57,14 @@ class ADXL345:
     def read(self, samples):
         for _ in range(samples):
             yield self.read_one()
-            #time.sleep(self.delay)
+            time.sleep(self.delay)
+
+    def read_with_delay(self, samples):
+        for _ in range(samples):
+            yield self.read_one()
+            time.sleep(self.delay)
+
+
 
     def read_one(self):
         count, data = self.pi.spi_xfer(self.h, self.READ_DATA)
