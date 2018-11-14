@@ -1,5 +1,4 @@
 import time
-from collections import deque, defaultdict
 import ctypes as ct
 
 import pigpio
@@ -48,8 +47,6 @@ class ADXL345:
         self.cold_start()
 
         self.delay = 1.0 / self.v_freq
-
-        self.saved_data = defaultdict(deque)
 
     def cold_start(self):
         for _ in range(self.cold_start_samples):
