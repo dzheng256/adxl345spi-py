@@ -9,7 +9,7 @@ wget abyz.co.uk/rpi/pigpio/pigpio.zip
 unzip pigpio.zip
 cd PIGPIO
 make -j4
-sudo make install
+make install
 ```
 
 Then clone this library and install with `python setup.py install`.
