@@ -64,8 +64,6 @@ class ADXL345:
             yield self.read_one()
             time.sleep(self.delay)
 
-
-
     def read_one(self):
         count, data = self.pi.spi_xfer(self.h, self.READ_DATA)
         if count == 7:
